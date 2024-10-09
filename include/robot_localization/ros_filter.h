@@ -719,6 +719,8 @@ template<class T> class RosFilter
     //! @brief optional signaling diagnostic frequency
     //!
     std::unique_ptr<diagnostic_updater::HeaderlessTopicDiagnostic> freqDiag_;
+
+    nav_msgs::Odometry last_pose = {};
 };
 
 }  // namespace RobotLocalization

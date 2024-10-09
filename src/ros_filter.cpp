@@ -1916,6 +1916,8 @@ namespace RobotLocalization
       {
         ROS_ERROR_STREAM("Critical Error, NaNs were detected in the output state of the filter." <<
               " This was likely due to poorly conditioned process, noise, or sensor covariances.");
+        setPoseCallback(last_pose);
+        // we might want to early return
       }
 
       // If the worldFrameId_ is the odomFrameId_ frame, then we can just send the transform. If the
@@ -1981,7 +1983,7 @@ namespace RobotLocalization
 
       // Fire off the position and the transform
       positionPub_.publish(filteredPosition);
-
+      last_pose = filteredPosition;
       if (printDiagnostics_)
       {
         freqDiag_->tick();
