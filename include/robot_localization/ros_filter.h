@@ -720,7 +720,7 @@ template<class T> class RosFilter
     //!
     std::unique_ptr<diagnostic_updater::HeaderlessTopicDiagnostic> freqDiag_;
 
-    nav_msgs::Odometry last_pose = {};
+    nav_msgs::Odometry last_odom = {};
 };
 
 }  // namespace RobotLocalization
