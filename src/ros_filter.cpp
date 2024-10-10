@@ -1916,11 +1916,15 @@ namespace RobotLocalization
       {
         ROS_ERROR_STREAM("Critical Error, NaNs were detected in the output state of the filter." <<
               " This was likely due to poorly conditioned process, noise, or sensor covariances.");
-        geometry_msgs::PoseWithCovarianceStamped last_pose;
-        last_pose.header = last_odom.header;
-        last_pose.pose = last_odom.pose;
-        setPoseCallback(boost::make_shared<geometry_msgs::PoseWithCovarianceStamped>(last_pose));
-        // we might want to early return
+        if(last_odom.header.stamp.sec > 0.0)
+        {
+          ROS_ERROR_STREAM("Apply Previous Pose");
+          geometry_msgs::PoseWithCovarianceStamped last_pose;
+          last_pose.header = last_odom.header;
+          last_pose.pose = last_odom.pose;
+          setPoseCallback(boost::make_shared<geometry_msgs::PoseWithCovarianceStamped>(last_pose));
+          // we might want to early return
+        }
       }
 
       // If the worldFrameId_ is the odomFrameId_ frame, then we can just send the transform. If the
