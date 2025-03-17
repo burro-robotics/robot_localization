@@ -1103,10 +1103,13 @@ namespace RobotLocalization
         // Store the odometry topic subscribers so they don't go out of scope.
         if (poseUpdateSum + twistUpdateSum > 0)
         {
-          topicSubs_.push_back(
-            nh_.subscribe<nav_msgs::Odometry>(odomTopic, odomQueueSize,
-              boost::bind(&RosFilter::odometryCallback, this, _1, odomTopicName, poseCallbackData, twistCallbackData),
-              ros::VoidPtr(), ros::TransportHints().tcpNoDelay(nodelayOdom)));
+          // topicSubs_.push_back(
+          //   nh_.subscribe<nav_msgs::Odometry>(odomTopic, odomQueueSize,
+          //     boost::bind(&RosFilter::odometryCallback, this, _1, odomTopicName, poseCallbackData, twistCallbackData),
+          //     ros::VoidPtr(), ros::TransportHints().tcpNoDelay(nodelayOdom)));
+              burro::FilterSubscriber<nav_msgs::Odometry> odometrySubscriber;
+              odometrySubscriber.subscribe(nh_, odomTopic, odomQueueSize, ros::TransportHints().tcpNoDelay(nodelayOdom));
+              odometrySubscriber.registerCallback(boost::bind(&RosFilter::odometryCallback, this, _1, odomTopicName, poseCallbackData, twistCallbackData));
         }
         else
         {
@@ -1467,10 +1470,14 @@ namespace RobotLocalization
           const CallbackData accelCallbackData(imuTopicName + "_acceleration", accelUpdateVec, accelUpdateSum,
             differential, relative, accelMahalanobisThresh);
 
-          topicSubs_.push_back(
-            nh_.subscribe<sensor_msgs::Imu>(imuTopic, imuQueueSize,
-              boost::bind(&RosFilter<T>::imuCallback, this, _1, imuTopicName, poseCallbackData, twistCallbackData,
-                accelCallbackData), ros::VoidPtr(), ros::TransportHints().tcpNoDelay(nodelayImu)));
+          // topicSubs_.push_back(
+          //   nh_.subscribe<sensor_msgs::Imu>(imuTopic, imuQueueSize,
+          //     boost::bind(&RosFilter<T>::imuCallback, this, _1, imuTopicName, poseCallbackData, twistCallbackData,
+          //       accelCallbackData), ros::VoidPtr(), ros::TransportHints().tcpNoDelay(nodelayImu)));
+          burro::FilterSubscriber<sensor_msgs::Imu> ImuSubscriber;
+          ImuSubscriber.subscribe(nh_, imuTopic, imuQueueSize, ros::TransportHints().tcpNoDelay(nodelayImu));
+          ImuSubscriber.registerCallback(boost::bind(&RosFilter<T>::imuCallback, this, _1, imuTopicName, poseCallbackData, twistCallbackData,
+            accelCallbackData));
         }
         else
         {

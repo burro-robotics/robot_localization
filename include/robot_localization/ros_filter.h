@@ -36,6 +36,7 @@
 #include "robot_localization/ros_filter_utilities.h"
 #include "robot_localization/filter_common.h"
 #include "robot_localization/filter_base.h"
+#include "burro_core_ros/ros/message_filters.h"
 
 #include <robot_localization/SetPose.h>
 #include <robot_localization/ToggleFilterProcessing.h>
