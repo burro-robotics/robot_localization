@@ -1103,14 +1103,12 @@ namespace RobotLocalization
         // Store the odometry topic subscribers so they don't go out of scope.
         if (poseUpdateSum + twistUpdateSum > 0)
         {
-          // topicSubs_.push_back(
-          //   nh_.subscribe<nav_msgs::Odometry>(odomTopic, odomQueueSize,
-          //     boost::bind(&RosFilter::odometryCallback, this, _1, odomTopicName, poseCallbackData, twistCallbackData),
-          //     ros::VoidPtr(), ros::TransportHints().tcpNoDelay(nodelayOdom)));
-              burro::FilterSubscriber<nav_msgs::Odometry> odometrySubscriber;
-              odometrySubscriber.subscribe(nh_, odomTopic, odomQueueSize, ros::TransportHints().tcpNoDelay(nodelayOdom));
-              odometrySubscriber.registerCallback(boost::bind(&RosFilter::odometryCallback, this, _1, odomTopicName, poseCallbackData, twistCallbackData));
-        }
+              auto odometrySubscriber = std::make_shared<burro::FilterSubscriber<nav_msgs::Odometry>>();
+              odometrySubscriber->subscribe(nh_, odomTopic, odomQueueSize, ros::TransportHints().tcpNoDelay(nodelayOdom));
+              odometrySubscriber->registerCallback(boost::bind(&RosFilter::odometryCallback, this, _1, odomTopicName, poseCallbackData, twistCallbackData));
+              topicSubs_.push_back(odometrySubscriber);
+
+            }
         else
         {
           std::stringstream stream;
@@ -1223,10 +1221,10 @@ namespace RobotLocalization
           const CallbackData callbackData(poseTopicName, poseUpdateVec, poseUpdateSum, differential, relative,
             poseMahalanobisThresh);
 
-          topicSubs_.push_back(
-            nh_.subscribe<geometry_msgs::PoseWithCovarianceStamped>(poseTopic, poseQueueSize,
-              boost::bind(&RosFilter::poseCallback, this, _1, callbackData, worldFrameId_, false),
-              ros::VoidPtr(), ros::TransportHints().tcpNoDelay(nodelayPose)));
+          auto poseStampedSubscriber = std::make_shared<burro::FilterSubscriber<geometry_msgs::PoseWithCovarianceStamped>>();
+          poseStampedSubscriber->subscribe(nh_, poseTopic, poseQueueSize, ros::TransportHints().tcpNoDelay(nodelayPose));
+          poseStampedSubscriber->registerCallback(boost::bind(&RosFilter::poseCallback, this, _1, callbackData, worldFrameId_, false));
+          topicSubs_.push_back(poseStampedSubscriber);
 
           if (differential)
           {
@@ -1300,10 +1298,11 @@ namespace RobotLocalization
           const CallbackData callbackData(twistTopicName, twistUpdateVec, twistUpdateSum, false, false,
             twistMahalanobisThresh);
 
-          topicSubs_.push_back(
-            nh_.subscribe<geometry_msgs::TwistWithCovarianceStamped>(twistTopic, twistQueueSize,
-              boost::bind(&RosFilter<T>::twistCallback, this, _1, callbackData, baseLinkFrameId_),
-              ros::VoidPtr(), ros::TransportHints().tcpNoDelay(nodelayTwist)));
+
+          auto TwistSubscriber = std::make_shared<burro::FilterSubscriber<geometry_msgs::TwistWithCovarianceStamped>>();
+          TwistSubscriber->subscribe(nh_, twistTopic, twistQueueSize, ros::TransportHints().tcpNoDelay(nodelayTwist));
+          TwistSubscriber->registerCallback(boost::bind(&RosFilter<T>::twistCallback, this, _1, callbackData, baseLinkFrameId_));
+          topicSubs_.push_back(TwistSubscriber);
 
           twistVarCounts[StateMemberVx] += twistUpdateVec[StateMemberVx];
           twistVarCounts[StateMemberVy] += twistUpdateVec[StateMemberVy];
@@ -1470,14 +1469,12 @@ namespace RobotLocalization
           const CallbackData accelCallbackData(imuTopicName + "_acceleration", accelUpdateVec, accelUpdateSum,
             differential, relative, accelMahalanobisThresh);
 
-          // topicSubs_.push_back(
-          //   nh_.subscribe<sensor_msgs::Imu>(imuTopic, imuQueueSize,
-          //     boost::bind(&RosFilter<T>::imuCallback, this, _1, imuTopicName, poseCallbackData, twistCallbackData,
-          //       accelCallbackData), ros::VoidPtr(), ros::TransportHints().tcpNoDelay(nodelayImu)));
-          burro::FilterSubscriber<sensor_msgs::Imu> ImuSubscriber;
-          ImuSubscriber.subscribe(nh_, imuTopic, imuQueueSize, ros::TransportHints().tcpNoDelay(nodelayImu));
-          ImuSubscriber.registerCallback(boost::bind(&RosFilter<T>::imuCallback, this, _1, imuTopicName, poseCallbackData, twistCallbackData,
+          auto ImuSubscriber = std::make_shared<burro::FilterSubscriber<sensor_msgs::Imu>>();
+          ImuSubscriber->subscribe(nh_, imuTopic, imuQueueSize, ros::TransportHints().tcpNoDelay(nodelayImu));
+          ImuSubscriber->registerCallback(boost::bind(&RosFilter<T>::imuCallback, this, _1, imuTopicName, poseCallbackData, twistCallbackData,
             accelCallbackData));
+
+          topicSubs_.push_back(ImuSubscriber);
         }
         else
         {

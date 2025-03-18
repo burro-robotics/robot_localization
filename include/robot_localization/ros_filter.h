@@ -543,7 +543,7 @@ template<class T> class RosFilter
 
     //! @brief Vector to hold our subscribers until they go out of scope
     //!
-    std::vector<ros::Subscriber> topicSubs_;
+    std::vector<std::shared_ptr<message_filters::SubscriberBase>> topicSubs_;
 
     //! @brief This object accumulates dynamic diagnostics, e.g., diagnostics relating
     //! to sensor data.
