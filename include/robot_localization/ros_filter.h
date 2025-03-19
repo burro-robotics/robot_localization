@@ -542,7 +542,7 @@ template<class T> class RosFilter
     std::vector<std::string> stateVariableNames_;
 
     //! @brief Vector to hold our subscribers until they go out of scope
-    //!
+    //! test help doc: https://personalrobotics.cs.washington.edu/software/unit-testing/
     std::vector<std::shared_ptr<message_filters::SubscriberBase>> topicSubs_;
 
     //! @brief This object accumulates dynamic diagnostics, e.g., diagnostics relating
